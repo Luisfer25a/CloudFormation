@@ -1,0 +1,38 @@
+Resources:
+  DatabaseInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: sqlserver-ex
+      PubliclyAccessible: true
+      MasterUsername: adm
+      DBSubnetGroupName: !Ref SubnetG
+      MasterUserPassword: Virtualizacion1
+      DBInstanceClass: db.t2.micro
+      AllocatedStorage: '20'
+      VPCSecurityGroups:
+        - !Ref DatabaseSG
+  SubnetG:
+    Type: "AWS::RDS::DBSubnetGroup"
+    Properties:
+      DBSubnetGroupDescription: subnetgroup para rds
+      SubnetIds:
+        - !ImportValue SubnetRDS
+        - !ImportValue SubnetECS
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetPublicaB
+        - !ImportValue SubnetPublicaA
+        - !ImportValue SubnetRedShift
+  DatabaseSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+Outputs:
+  DatabaseInstance:
+    Description: servicio login
+    Value: !Ref DatabaseInstance
+    Export:
+      Name: 'DatabaseInstance'

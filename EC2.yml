@@ -1,0 +1,136 @@
+Resources:
+  ServicioSpotifySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Spotify'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '10000'
+        ToPort: '10000'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+  ServicioEmocionesSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Rekognition'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '8000'
+        ToPort: '8000'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+  ServicioLoginSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Login'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3001'
+        ToPort: '3001'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+  ServicioHistorialSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Historial'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3002'
+        ToPort: '3002'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '3389'
+        ToPort: '3389'
+        CidrIp: 0.0.0.0/0
+  DiscoverySG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Discovery'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: -1
+        CidrIp: 0.0.0.0/0
+  PublicEC2SG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'EC2Publica'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3002'
+        ToPort: '3002'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '3389'
+        ToPort: '3389'
+        CidrIp: 0.0.0.0/0
+  ClimaSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: 'Clima'
+      GroupDescription: for the app nodes that allow ssh, http and docker ports
+      VpcId : !ImportValue VPCMusicfeel
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '3000'
+        ToPort: '3000'
+        CidrIp: 0.0.0.0/0
+Outputs:
+  ServicioSpotifySG:
+    Value: !Ref ServicioSpotifySG
+    Export:
+      Name: 'ServicioSpotifySG'
+
+  ServicioEmocionesSG:
+    Description: servicio emociones
+    Value: !Ref ServicioEmocionesSG
+    Export:
+      Name: 'ServicioEmocionesSG'
+
+  ServicioLoginSG:
+    Description: servicio login
+    Value: !Ref ServicioLoginSG
+    Export:
+      Name: 'ServicioLoginSG'
+
+  ServicioHistorialSG:
+    Description: Servicio historial
+    Value: !Ref ServicioHistorialSG
+    Export:
+      Name: 'ServicioHistorialSG'
+  ClimaSG:
+    Description: Servicio historial
+    Value: !Ref ClimaSG
+    Export:
+      Name: 'ClimaSG'
+
+  DiscoverySG:
+    Description: Servicio DiscoverySG
+    Value: !Ref DiscoverySG
+    Export:
+      Name: 'DiscoverySG'
+
+  PublicEC2SG:
+    Description: Servicio DiscoverySG
+    Value: !Ref PublicEC2SG
+    Export:
+      Name: 'PublicEC2SG'

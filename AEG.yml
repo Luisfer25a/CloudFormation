@@ -1,0 +1,165 @@
+Resources:
+  LCSpotify:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Proyecto
+      InstanceMonitoring: false
+      EbsOptimized: false
+      ImageId: ami-0f263e1e6ebddd9fd
+      LaunchConfigurationName: 'Spotify'
+      SecurityGroups:
+        - !ImportValue ServicioSpotifySG
+      UserData: !Base64 |
+        #!/bin/bash
+        cd /home/ec2-user/SpotifyapiWS
+        /home/ec2-user/.nvm/versions/node/v12.4.0/bin/node app.js
+  LCHistorial:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Proyecto
+      InstanceMonitoring: false
+      EbsOptimized: false
+      ImageId: ami-025faa2df0ba20dcc
+      LaunchConfigurationName: 'Historial'
+      SecurityGroups:
+        - !ImportValue ServicioHistorialSG
+      UserData: !Base64 |
+        #!/bin/bash
+        cd /home/ec2-user/ProyectoRekognition/rekognition-node
+        /usr/bin/node app.js
+  LCRekognition:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Proyecto
+      InstanceMonitoring: false
+      EbsOptimized: false
+      ImageId: ami-0e6a921320af4013d
+      LaunchConfigurationName: 'Rekognition'
+      SecurityGroups:
+        - !ImportValue ServicioEmocionesSG
+      UserData: !Base64 |
+        #!/bin/bash
+        cd /home/ec2-user/ProyectoRekognition/rekognition-node
+        /usr/bin/node app.js
+  LCLogin:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Proyecto
+      InstanceMonitoring: false
+      EbsOptimized: false
+      ImageId: ami-023bc1046b541e286
+      LaunchConfigurationName: 'Login'
+      SecurityGroups:
+        - !ImportValue ServicioLoginSG
+      UserData: !Base64 |
+        #!/bin/bash
+        cd /home/ec2-user/Login/Login
+        /home/ec2-user/.nvm/versions/node/v12.4.0/bin/node app.js
+  LCEC2Container:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      InstanceType: t2.micro
+      KeyName: Proyecto
+      InstanceMonitoring: false
+      ImageId: ami-0329a1fdc914b0c55
+      EbsOptimized: false
+      LaunchConfigurationName: 'Clima'
+      SecurityGroups:
+        - !ImportValue PublicEC2SG
+      UserData: !Base64 |
+        #!/bin/bash
+        echo ECS_CLUSTER=your_cluster_name >> /etc/ecs/ecs.config
+  AEGSpotify:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: 'Spotify'
+      AvailabilityZones:
+        - 'us-east-2a'
+        - 'us-east-2b'
+      DesiredCapacity: '0'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      LaunchConfigurationName: !Ref LCSpotify
+      MaxSize: '5'
+      MinSize: '0'
+      TargetGroupARNs:
+        - !ImportValue TargetGroup4
+      VPCZoneIdentifier:
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetECS
+  AEGHistorial:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: 'Historial'
+      AvailabilityZones:
+        - 'us-east-2a'
+        - 'us-east-2b'
+      DesiredCapacity: '0'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      LaunchConfigurationName: !Ref LCHistorial
+      MaxSize: '5'
+      MinSize: '0'
+      TargetGroupARNs:
+        - !ImportValue TargetGroup2
+      VPCZoneIdentifier:
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetECS
+  AEGRekognition:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: 'Rekognition'
+      AvailabilityZones:
+        - 'us-east-2a'
+        - 'us-east-2b'
+      DesiredCapacity: '0'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      LaunchConfigurationName: !Ref LCRekognition
+      MaxSize: '5'
+      MinSize: '0'
+      TargetGroupARNs:
+        - !ImportValue TargetGroup3
+      VPCZoneIdentifier:
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetECS
+  AEGLogin:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: 'Login'
+      AvailabilityZones:
+        - 'us-east-2a'
+        - 'us-east-2b'
+      DesiredCapacity: '0'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      LaunchConfigurationName: !Ref LCLogin
+      MaxSize: '5'
+      MinSize: '0'
+      TargetGroupARNs:
+        - !ImportValue TargetGroup1
+      VPCZoneIdentifier:
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetECS
+  AEGEC2Container:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: 'EC2Container'
+      AvailabilityZones:
+        - 'us-east-2a'
+        - 'us-east-2b'
+      DesiredCapacity: '0'
+      HealthCheckGracePeriod: '300'
+      HealthCheckType: EC2
+      LaunchConfigurationName: !Ref LCEC2Container
+      MaxSize: '5'
+      MinSize: '0'
+      TargetGroupARNs:
+        - !ImportValue TargetGroup0
+      VPCZoneIdentifier:
+        - !ImportValue SubnetEC2
+        - !ImportValue SubnetECS

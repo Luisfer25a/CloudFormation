@@ -1,0 +1,176 @@
+Resources:
+  BucketRecognition:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "bucketproyecto22"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+  ClusterClima:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: 'clusterclima'
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: 'network'
+      Name: servicelb
+      Subnets:
+        - !ImportValue 'SubnetPublicaA'
+        - !ImportValue 'SubnetPublicaB'
+  LoadBalancerListener0:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: 'TCP'
+      Port: 3000
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup0
+  LoadBalancerListener1:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: 'TCP'
+      Port: 3001
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup1
+  LoadBalancerListener2:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: 'TCP'
+      Port: 3002
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup2
+  LoadBalancerListener3:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: 'TCP'
+      Port: 8000
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup3
+  LoadBalancerListener4:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Protocol: 'TCP'
+      Port: 10000
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup4
+  TargetGroup0:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Clima
+      VpcId: !ImportValue 'VPCMusicfeel'
+      Protocol: 'TCP'
+      Port: '3000'
+  TargetGroup1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Login
+      VpcId: !ImportValue 'VPCMusicfeel'
+      Protocol: 'TCP'
+      Port: '3001'
+  TargetGroup2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Historial
+      VpcId: !ImportValue 'VPCMusicfeel'
+      Protocol: 'TCP'
+      Port: '3002'
+  TargetGroup3:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Recognition
+      VpcId: !ImportValue 'VPCMusicfeel'
+      Protocol: 'TCP'
+      Port: '8000'
+  TargetGroup4:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: Spotify
+      VpcId: !ImportValue 'VPCMusicfeel'
+      Protocol: 'TCP'
+      Port: '10000'
+  ContainerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+     GroupDescription: Security group for loadbalancer to services on ECS
+     VpcId: !ImportValue 'VPCMusicfeel'
+     SecurityGroupIngress:
+       - CidrIp: 0.0.0.0/0
+         IpProtocol: -1
+Outputs:
+  TargetGroup0:
+    Value: !Ref TargetGroup0
+    Export:
+      Name: 'TargetGroup0'
+  TargetGroup1:
+    Value: !Ref TargetGroup1
+    Export:
+      Name: 'TargetGroup1'
+  TargetGroup2:
+    Value: !Ref TargetGroup2
+    Export:
+      Name: 'TargetGroup2'
+  TargetGroup3:
+    Value: !Ref TargetGroup3
+    Export:
+      Name: 'TargetGroup3'
+  TargetGroup4:
+    Value: !Ref TargetGroup4
+    Export:
+      Name: 'TargetGroup4'
+  ClusterClima:
+    Value: !Ref ClusterClima
+    Export:
+      Name: 'ClusterClima'
+  LoadBalancerListener0:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener0
+    Export:
+      Name: 'LoadBalancerListener0'
+  LoadBalancerListener1:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener1
+    Export:
+      Name: 'LoadBalancerListener1'
+  LoadBalancerListener0:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener0
+    Export:
+      Name: 'LoadBalancerListener0'
+  LoadBalancerListener2:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener2
+    Export:
+      Name: 'LoadBalancerListener2'
+  LoadBalancerListener3:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener3
+    Export:
+      Name: 'LoadBalancerListener3'
+  LoadBalancerListener4:
+    Description: listener port 443
+    Value: !Ref LoadBalancerListener4
+    Export:
+      Name: 'LoadBalancerListener4'
+  ContainerSecurityGroup:
+    Description: container security group
+    Value: !Ref ContainerSecurityGroup
+    Export:
+      Name: 'ContainerSecurityGroup'
+
+  LoadBalancerDNS:
+    Description: Domain name for the loadbalancer
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: 'DomainName'

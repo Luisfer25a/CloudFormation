@@ -1,0 +1,190 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: VPC para ec2
+
+Resources:
+
+  VPCMusicfeel:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '190.0.0.0/16'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      InstanceTenancy: default
+
+  SubnetPublicaA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2a'
+      CidrBlock: !Sub '190.0.1.0/24'
+      MapPublicIpOnLaunch: false
+
+  SubnetPublicaB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2b'
+      CidrBlock: !Sub '190.0.6.0/24'
+      MapPublicIpOnLaunch: false
+
+  SubnetEC2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2b'
+      CidrBlock: !Sub '190.0.2.0/24'
+      MapPublicIpOnLaunch: false
+
+  SubnetECS:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2a'
+      CidrBlock: !Sub '190.0.3.0/24'
+      MapPublicIpOnLaunch: false
+
+  SubnetRDS:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2a'
+      CidrBlock: !Sub '190.0.4.0/24'
+      MapPublicIpOnLaunch: false
+
+  SubnetRedShift:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+      AvailabilityZone: 'us-east-2b'
+      CidrBlock: !Sub '190.0.5.0/24'
+      MapPublicIpOnLaunch: false
+
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    DependsOn: NatEIP
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+        - NatEIP
+        - AllocationId
+      SubnetId: !Ref SubnetPublicaA
+
+  NatEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  VPCGatewayAttachment:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPCMusicfeel
+
+  RouteTableNAT:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+
+  RouteTableIG:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPCMusicfeel
+
+  RouteTableAssociation1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPublicaA
+      RouteTableId: !Ref RouteTableIG
+
+  RouteTableAssociation2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetEC2
+      RouteTableId: !Ref RouteTableNAT
+
+  RouteTableAssociation3:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetECS
+      RouteTableId: !Ref RouteTableNAT
+
+  RouteTableAssociation4:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetRDS
+      RouteTableId: !Ref RouteTableNAT
+
+  RouteTableAssociation5:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetRedShift
+      RouteTableId: !Ref RouteTableNAT
+
+  RouteTableAssociation6:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref SubnetPublicaB
+      RouteTableId: !Ref RouteTableIG
+
+  InternetRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref RouteTableIG
+      DestinationCidrBlock: '0.0.0.0/0'
+
+  NatRoute:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      NatGatewayId: !Ref NatGateway
+      RouteTableId: !Ref RouteTableNAT
+      DestinationCidrBlock: '0.0.0.0/0'
+
+Outputs:
+
+  VPCMusicfeel:
+    Description: VPCMusicfeel
+    Value: !Ref VPCMusicfeel
+    Export:
+      Name: 'VPCMusicfeel'
+
+  SubnetPublicaA:
+    Description: 'SubnetPublicaA'
+    Value: !Ref SubnetPublicaA
+    Export:
+      Name: 'SubnetPublicaA'
+
+  SubnetPublicaB:
+    Description: 'SubnetPublicaB'
+    Value: !Ref SubnetPublicaB
+    Export:
+      Name: 'SubnetPublicaB'
+
+  SubnetEC2:
+    Description: 'SubnetEC2'
+    Value: !Ref SubnetEC2
+    Export:
+      Name: 'SubnetEC2'
+
+  SubnetECS:
+    Description: 'SubnetECS'
+    Value: !Ref SubnetECS
+    Export:
+      Name: 'SubnetECS'
+
+  SubnetRDS:
+    Description: 'SubnetRDS'
+    Value: !Ref SubnetRDS
+    Export:
+      Name: 'SubnetRDS'
+
+  SubnetRedShift:
+    Description: 'SubnetRedShift'
+    Value: !Ref SubnetRedShift
+    Export:
+      Name: 'SubnetRedShift'
